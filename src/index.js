@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 
 import "./styles.css";
@@ -8,17 +8,20 @@ function App() {
   const [step, setStep] = useState(1);
   const [timerOn, setTimerOn] = useState(false);
 
-  const increment = () => {
+  const lastCallback = useRef();
+  useEffect(function updateLastCallback() {
+    lastCallback.current = () => {
+      setCount(prev => prev + step);
+    };
+  })
+
+  useEffect(function increment() {
     if (timerOn) {
-      let interval = setInterval(() => {
-        setCount(prev => prev + step);
-      }, 1000);
+      let interval = setInterval(() => lastCallback.current(), 1000);
 
       return () => clearInterval(interval);
     }
-  };
-
-  useEffect(increment, [timerOn]);
+  }, [timerOn]);
 
   return (
     <div className="App">
